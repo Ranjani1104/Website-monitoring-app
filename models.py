@@ -14,3 +14,4 @@ class Check(db.Model):
     latency = db.Column(db.Float)
     is_up = db.Column(db.Boolean)
     checked_at = db.Column(db.DateTime, default=datetime.utcnow)
+    error_message = db.Column(db.Text)

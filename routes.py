@@ -32,7 +32,8 @@ def home():
             "latency": latest.latency if latest else None,
             "status_code": latest.status if latest else None,
             "checked_at": latest.checked_at if latest else None,
-            "uptime": uptime
+            "uptime": uptime,
+            "error_message": latest.error_message if latest else None
         })
 
     return render_template('index.html', results=results)
