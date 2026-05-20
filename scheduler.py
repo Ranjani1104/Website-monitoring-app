@@ -22,7 +22,7 @@ def check_websites(app):
 
                 status_code = r.status_code
 
-                # ✅ Status classification
+                #reason/error for up/down
                 if status_code >= 500:
                     status_label = "DOWN"
                     is_up = False
@@ -36,7 +36,7 @@ def check_websites(app):
                     status_label = "UP"
                     is_up = True
 
-                # ✅ Add error message if not UP
+                # Add error message if not UP
                 error_msg = None
 
                 if not is_up:
@@ -55,7 +55,7 @@ def check_websites(app):
                         error_msg = "Unknown failure"
                     print(f" 🚨 ALERT: {w.url} is DOWN | Reason: {error_msg}")
 
-                # ✅ Save to DB
+                #this line for Save to DB
                 db.session.add(Check(
                     website_id=w.id,
                     status=status_code,
