@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="card shadow-sm">
+    <div class="card-body">
+
+        <h4>Add Website</h4>
+
+        <form method="POST" action="/add">
+
+            <div class="mb-3">
+                <input 
+                    type="text" 
+                    name="url" 
+                    class="form-control" 
+                    placeholder="https://example.com" 
+                    required>
+            </div>
+
+            <button type="submit" class="btn btn-success">Add</button>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="card shadow-sm">
+    <div class="card-body">
+
+        <h4 class="mb-3">Website Status</h4>
+
+        <table class="table table-bordered table-hover text-center align-middle">
+
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>URL</th>
+                    <th>Status</th>
+                    <th>Latency (s)</th>
+                    <th>Status Code</th>
+                    <th>Last Checked</th>
+                    <th>Uptime %</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            {% for r in results %}
+            <tr>
+
+                <td>{{ r.id }}</td>
+
+                <td>
+                    <a href="{{ r.url }}" target="_blank">
+                        {{ r.url }}
+                    </a>
+                </td>
+
+                <td>
+                    {% if r.status == True %}
+                        <span class="badge bg-success">UP</span>
+                    {% elif r.status == False %}
+                        <span class="badge bg-danger">DOWN</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">Checking...</span>
+                    {% endif %}
+                </td>
+
+                <td>
+                    {% if r.latency %}
+                        {{ "%.2f"|format(r.latency) }} s
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+
+                <td>
+                    {{ r.status_code if r.status_code else '-' }}
+                </td>
+
+                <td>
+                    {{ r.checked_at if r.checked_at else '-' }}
+                </td>
+
+                <td>
+                    <span class="badge bg-info">
+                        {{ r.uptime }}%
+                    </span>
+                </td>
+
+                <td>
+                    <a href="/delete/{{ r.id }}" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+
+            </tr>
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+</div>
+
+{% endblock %}
