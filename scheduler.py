@@ -28,7 +28,7 @@ def check_websites(app):
                     is_up = False
                 elif status_code == 403:
                     status_label = "BLOCKED"
-                    is_up = False
+                    is_up = True
                 elif status_code >= 400:
                     status_label = "WARNING"
                     is_up = False

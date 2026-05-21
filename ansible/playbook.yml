@@ -1,0 +1,83 @@
+- name: Deploy Website Monitoring App from GitHub
+  hosts: web
+  become: yes
+
+  vars:
+    app_dir: /home/ubuntu/app
+    repo_url: https://github.com/Ranjani1104/Website-monitoring-app.git
+
+  tasks:
+
+    - name: Update apt packages
+      apt:
+        update_cache: yes
+
+    - name: Install required packages
+      apt:
+        name:
+          - git
+          - python3
+          - python3-pip
+          - nginx
+        state: present
+
+    - name: Remove existing app directory (clean deployment)
+      file:
+        path: "{{ app_dir }}"
+        state: absent
+
+    - name: Clone GitHub repository
+      git:
+        repo: "{{ repo_url }}"
+        dest: "{{ app_dir }}"
+
+    - name: Install Python dependencies
+      pip:
+        requirements: "{{ app_dir }}/requirements.txt"
+
+    - name: Install Gunicorn
+      pip:
+        name: gunicorn
+
+    - name: Create systemd service for app
+      copy:
+        dest: /etc/systemd/system/app.service
+        content: |
+          [Unit]
+          Description=Website Monitoring App
+          After=network.target
+
+          [Service]
+          User=ubuntu
+          WorkingDirectory={{ app_dir }}
+          ExecStart=/usr/local/bin/gunicorn -w 3 -b 127.0.0.1:8000 main:app
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target
+    - name: Reload systemd daemon
+      command: systemctl daemon-reexec
+
+    - name: Enable and start app service
+      systemd:
+        name: app
+        enabled: yes
+        state: restarted
+
+    - name: Configure nginx reverse proxy
+      copy:
+        dest: /etc/nginx/sites-available/default
+        content: |
+          server {
+              listen 80;
+              location / {
+                  proxy_pass http://127.0.0.1:8000;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+              }
+          }
+
+    - name: Restart nginx
+      service:
+        name: nginx
+        state: restarted
