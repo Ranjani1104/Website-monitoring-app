@@ -4,6 +4,7 @@ from models import db
 from routes import main
 from scheduler import check_websites
 from apscheduler.schedulers.background import BackgroundScheduler
+import os
 
 # Create app
 app = Flask(__name__)
@@ -12,17 +13,27 @@ app.config.from_object(Config)
 # Initialize DB
 db.init_app(app)
 
-# Create tables
-with app.app_context():
-    db.create_all()
-
 # Register routes
 app.register_blueprint(main)
 
-# Scheduler (runs every 5 seconds)
-scheduler = BackgroundScheduler()
-scheduler.add_job(lambda: check_websites(app), 'interval', seconds=5)
-scheduler.start()
+# ✅ Create tables (after app + routes ready)
+def create_tables():
+    with app.app_context():
+        db.create_all()
 
+create_tables()
+
+# ✅ Scheduler setup
+scheduler = BackgroundScheduler()
+
+def start_scheduler():
+    scheduler.add_job(lambda: check_websites(app), 'interval', seconds=5)
+    scheduler.start()
+
+# ✅ Prevent multiple scheduler runs
+if not app.debug or os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+    start_scheduler()
+
+# Run app
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=False)

@@ -21,30 +21,46 @@
           - nginx
         state: present
 
-    - name: Remove existing app directory (clean deployment)
+    - name: Remove existing app directory
       file:
         path: "{{ app_dir }}"
         state: absent
 
-    - name: Clone GitHub repository
+    - name: Clone repository
       git:
         repo: "{{ repo_url }}"
         dest: "{{ app_dir }}"
 
-    - name: Install Python dependencies
+    # ✅ FIX: Create DB folder
+    - name: Create instance directory
+      file:
+        path: "{{ app_dir }}/instance"
+        state: directory
+        mode: '0777'
+
+    - name: Fix permissions
+      file:
+        path: "{{ app_dir }}/instance"
+        mode: '0777'
+        recurse: yes
+
+    - name: Install dependencies
       pip:
         requirements: "{{ app_dir }}/requirements.txt"
+        executable: pip3
 
     - name: Install Gunicorn
       pip:
         name: gunicorn
+        executable: pip3
 
-    - name: Create systemd service for app
+    # ✅ FIX: Use gunicorn service
+    - name: Create gunicorn service
       copy:
-        dest: /etc/systemd/system/app.service
+        dest: /etc/systemd/system/gunicorn.service
         content: |
           [Unit]
-          Description=Website Monitoring App
+          Description=Gunicorn Website Monitoring App
           After=network.target
 
           [Service]
@@ -52,15 +68,17 @@
           WorkingDirectory={{ app_dir }}
           ExecStart=/usr/local/bin/gunicorn -w 3 -b 127.0.0.1:8000 main:app
           Restart=always
+          RestartSec=3
 
           [Install]
           WantedBy=multi-user.target
-    - name: Reload systemd daemon
-      command: systemctl daemon-reexec
 
-    - name: Enable and start app service
+    - name: Reload systemd
+      command: systemctl daemon-reload
+
+    - name: Start Gunicorn
       systemd:
-        name: app
+        name: gunicorn
         enabled: yes
         state: restarted
 

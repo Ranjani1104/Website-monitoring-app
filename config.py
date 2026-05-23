@@ -1,4 +1,7 @@
-class Config:
-    SQLALCHEMY_DATABASE_URI ='sqlite:///monitor.db'
+import os
 
-    SQLALCHEMY_TRACK_MODIFICATIONS =False
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+
+class Config:
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(BASE_DIR, 'instance', 'monitor.db')
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
