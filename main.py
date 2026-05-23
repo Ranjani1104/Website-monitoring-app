@@ -4,11 +4,14 @@ from models import db
 from routes import main
 from scheduler import check_websites
 from apscheduler.schedulers.background import BackgroundScheduler
+from prometheus_flask_exporter import PrometheusMetrics
 import os
 
 # Create app
 app = Flask(__name__)
 app.config.from_object(Config)
+
+metrics = PrometheusMetrics(app)
 
 # Initialize DB
 db.init_app(app)
