@@ -19,21 +19,21 @@ db.init_app(app)
 # Register routes
 app.register_blueprint(main)
 
-# ✅ Create tables (after app + routes ready)
+# Create tables
 def create_tables():
     with app.app_context():
         db.create_all()
 
 create_tables()
 
-# ✅ Scheduler setup
+# Scheduler setup
 scheduler = BackgroundScheduler()
 
 def start_scheduler():
     scheduler.add_job(lambda: check_websites(app), 'interval', seconds=5)
     scheduler.start()
 
-# ✅ Prevent multiple scheduler runs
+# Prevent multiple scheduler runs
 if not app.debug or os.environ.get("WERKZEUG_RUN_MAIN") == "true":
     start_scheduler()
 
